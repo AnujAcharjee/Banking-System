@@ -1,0 +1,130 @@
+---
+alwaysApply: true
+---
+
+# NovaBank — Project Context
+
+## What this is
+Full-stack banking system for a Software Engineering Lab.
+Next.js 15 App Router, Neon PostgreSQL, Prisma ORM, Tailwind CSS, JWT auth.
+All code is inside `src/`.
+
+---
+
+## Tech Stack
+- **Framework**: Next.js 15 (App Router, src/ dir)
+- **Database**: Neon PostgreSQL via `@neondatabase/serverless`
+- **ORM**: Prisma 5 — schema at `prisma/schema.prisma`
+- **Auth**: JWT via `jose`, stored in httpOnly cookie named `auth_token` (7-day expiry)
+- **Styling**: Tailwind CSS, orange + white theme, config at `tailwind.config.js`
+- **Toasts**: `react-hot-toast`
+- **Icons**: `lucide-react`
+
+---
+
+## Project Structure
+
+src/
+├── app/
+│   ├── page.tsx                        # Landing page
+│   ├── layout.tsx                      # Root layout + Toaster
+│   ├── loading.tsx / error.tsx / not-found.tsx
+│   ├── auth/
+│   │   ├── signin/page.tsx             # Login: accountNumber + password
+│   │   ├── signup/page.tsx             # 3-step signup form
+│   │   └── forgot-password/page.tsx    # OTP password reset
+│   ├── dashboard/
+│   │   ├── page.tsx                    # Main dashboard (balance, modals)
+│   │   ├── loading.tsx
+│   │   └── profile/page.tsx            # User KYC profile view
+│   ├── passbook/
+│   │   ├── page.tsx                    # Full transaction history + filters
+│   │   └── loading.tsx
+│   └── api/
+│       ├── auth/signup/                # POST - register, issues NOVA######## account number
+│       ├── auth/signin/                # POST - login, sets cookie
+│       ├── auth/signout/               # POST - clears cookie
+│       ├── auth/me/                    # GET  - validate session
+│       ├── auth/forgot-password/       # POST - verify account+phone, generate OTP
+│       ├── auth/reset-password/        # POST - validate OTP, update password
+│       ├── account/details/            # GET  - full user + balance (protected)
+│       ├── account/balance/            # GET  - balance only (protected)
+│       ├── transactions/credit/        # POST - credit amount
+│       ├── transactions/debit/         # POST - debit amount
+│       ├── transactions/transfer/      # POST - transfer between accounts
+│       └── transactions/history/       # GET  - paginated history (?page=&limit=&type=)
+├── components/
+│   ├── layout/DashboardLayout.tsx      # Sidebar + topbar shell for protected pages
+│   └── ui/
+│       ├── Button.tsx                  # variant: primary|secondary|ghost|danger
+│       ├── Input.tsx                   # label, error, hint, icon, suffix props
+│       ├── Card.tsx                    # hover, glass, padding props
+│       └── TxBadge.tsx                 # Color-coded transaction type badge
+├── lib/
+│   ├── prisma.ts                       # Prisma singleton
+│   ├── auth.ts                         # signToken, verifyToken, getAuthUserFromRequest
+│   ├── client-utils.ts                 # formatCurrency, formatDate, generateOTP etc (safe in 'use client')
+│   ├── server-utils.ts                 # generateUniqueAccountNumber (server-only, uses prisma)
+│   └── utils.ts                        # Re-exports from client-utils (barrel)
+├── middleware.ts                        # Protects /dashboard /passbook, redirects authed users from /auth/*
+└── types/index.ts                      # User, Transaction, TransactionType, PaginationMeta types
+
+---
+
+## Database Models (Prisma)
+- **User** — id, accountNumber (NOVA########), passwordHash, fullName, email?, phone, address, panNumber, aadhaarNumber
+- **Account** — userId (1:1 with User), balance (Float), isActive
+- **Transaction** — userId, type (CREDIT|DEBIT|TRANSFER_IN|TRANSFER_OUT), amount, balanceAfter, description?, referenceNumber, status, createdAt
+- **OtpStore** — accountNumber, otp, expiresAt (10 min TTL, cleaned after use)
+
+---
+
+## Key Conventions
+- All API routes are in `src/app/api/**/route.ts` and use `NextRequest/NextResponse`
+- Auth check in API routes: `const auth = await getAuthUserFromRequest(req)` → returns `{ userId, accountNumber }` or null
+- Banking operations (credit/debit/transfer) use `prisma.$transaction([...])` for atomicity
+- `formatCurrency` / `formatDate` come from `@/lib/utils` (safe for client components)
+- `generateUniqueAccountNumber` comes from `@/lib/server-utils` (server only)
+- Never use `omit` in Prisma queries — use explicit `select` instead
+- Any page using `useSearchParams()` must be wrapped in `<Suspense>`
+- OTP is returned in API response as `devOtp` in development — remove in production
+- Passwords hashed with bcrypt (12 rounds)
+- Account numbers format: `NOVA` + 8 random digits (e.g. `NOVA83729104`)
+
+---
+
+## Theme / Styling Rules
+- **Color Palette Constraint**: The entire UI must strictly adhere to the following color palette. Do not use generic Tailwind colors (e.g., slate, orange, red) unless mapping them to these hex codes:
+  - `whisper`: `#f3f2f7` (Light background)
+  - `mine-shaft`: `#292929` (Primary dark text, dark mode backgrounds)
+  - `flamingo`: `#f25939` (Primary accent, main buttons, highlights)
+  - `dusty-gray`: `#949494` (Secondary text, muted elements, borders)
+  - `rose-bud`: `#fdb0a1` (Secondary accent, hover states, badges)
+  - `spicy-mix`: `#875142` (Darker accents, specific text highlights)
+  - `elm`: `#1b6c86` (Information highlights, specific alerts)
+
+- Background: `#f3f2f7` (whisper) instead of `#fffbf7`
+- Custom CSS classes defined in `globals.css`:
+  - `.flamingo-gradient` — gradient background based on flamingo color
+  - `.glass-card` — frosted glass card with flamingo/rose-bud tint
+  - `.gradient-text` — flamingo to rose-bud gradient text
+  - `.shimmer` — loading skeleton animation
+  - `.card-hover` — lift + shadow on hover
+  - `.shadow-glow` — flamingo glow shadow
+- All interactive elements should have `transition-all duration-200` and `active:scale-95`
+
+---
+
+## Environment Variables needed
+
+DATABASE_URL=        # Neon PostgreSQL connection string
+JWT_SECRET=          # Long random string for signing JWTs
+NEXT_PUBLIC_APP_URL= # e.g. http://localhost:3000
+
+## Setup Commands
+```bash
+bun install
+bunx prisma generate
+bunx prisma db push
+bun run dev
+```
