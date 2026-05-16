@@ -269,7 +269,7 @@ export default function LandingPage() {
             </div>
             <span className="text-white font-semibold font-display">NovaBank</span>
           </div>
-          <p className="text-sm">© 2024 NovaBank. Built for Software Engineering Lab.</p>
+          <p className="text-sm">© 2026 NovaBank. Built for Software Engineering Lab.</p>
           <div className="flex gap-6 text-sm">
             <Link href="/auth/signin" className="hover:text-flamingo/80 transition-colors">Sign In</Link>
             <Link href="/auth/signup" className="hover:text-flamingo/80 transition-colors">Sign Up</Link>
