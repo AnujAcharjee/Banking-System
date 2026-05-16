@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "bunx prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "db:push": "prisma db push",
-    "db:generate": "prisma generate",
-    "db:studio": "prisma studio",
-    "db:setup": "prisma generate && prisma db push",
-    "db:migrate": "prisma migrate dev"
+    "db:push": "bunx prisma db push",
+    "db:generate": "bunx prisma generate",
+    "db:studio": "bunx prisma studio",
+    "db:setup": "bunx prisma generate && bunx prisma db push",
+    "db:migrate": "bunx prisma migrate dev"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
