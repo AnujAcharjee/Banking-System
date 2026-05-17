@@ -148,3 +148,24 @@ sequenceDiagram
     API-->>Client: 200 OK (Transfer Complete)
     Client-->>User: Shows Success Toast & Updates UI
 ```
+
+---
+
+## 7. Database Design & Schema Strategy
+
+The database schema is designed with a strict focus on security, data integrity, and ACID compliance to simulate a real-world financial institution. We use PostgreSQL (via Neon) managed by Prisma ORM.
+
+### Key Entities & Normalization
+
+*   **User (`users`)**: Stores all PII (Personally Identifiable Information) and KYC details (PAN, Aadhaar, Phone, Email). We enforce `@unique` constraints on all identification fields to prevent duplicate accounts.
+*   **Account (`accounts`)**: Contains the current `balance` and `isActive` status. It has a one-to-one relationship with the `User`. Separating `Account` from `User` ensures that authentication/KYC data is decoupled from financial state data.
+*   **Transaction (`transactions`)**: Acts as an append-only, immutable ledger. Every transaction records the `TransactionType` (CREDIT, DEBIT, TRANSFER_IN, TRANSFER_OUT), the `amount`, and the `balanceAfter` to guarantee historical accuracy for auditing.
+*   **Admin (`admins`)**: Explicitly isolated from the `users` table. This physical separation at the database level eliminates the risk of privilege escalation (e.g., a standard user finding a way to set an `isAdmin = true` flag).
+*   **OtpStore (`otp_store`)**: An ephemeral table used for storing short-lived OTPs linked to account numbers.
+
+### Design Strategies & Best Practices
+
+1.  **ACID Transactions & Atomicity**: Financial transfers involve multiple operations (e.g., deducting from Sender, adding to Receiver, logging two transactions). We use Prisma's `$transaction` API to ensure these happen atomically. If any step fails, the entire operation rolls back, preventing money from being lost in transit.
+2.  **CUID Primary Keys**: All tables use CUIDs (Collision Resistant Unique Identifiers) instead of auto-incrementing integers. This prevents attackers from guessing ID sequences (enumeration attacks) and understanding the scale of the user base.
+3.  **Historical Integrity (`balanceAfter`)**: The `Transaction` table captures the user's exact balance at the moment of the transaction. If the current `Account.balance` somehow falls out of sync, the transaction ledger can be replayed to reconstruct the correct balance.
+4.  **Cascading Cleanups**: Foreign keys use `onDelete: Cascade`. If a user's profile is deleted from the system, their associated accounts and transaction history are automatically wiped, adhering to strict data privacy and cleanup rules.
