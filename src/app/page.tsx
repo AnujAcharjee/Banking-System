@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import {
   Shield, Zap, TrendingUp, ArrowRight, ChevronRight,
-  CheckCircle, Lock, Globe, Smartphone, Star, Menu, X
+  CheckCircle, Lock, Globe, Smartphone, IndianRupee , Menu, X
 } from 'lucide-react'
 
 export default function LandingPage() {
@@ -51,10 +51,10 @@ export default function LandingPage() {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm border-b border-orange-100' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 flamingo-gradient rounded-xl flex items-center justify-center shadow-glow">
+            {/* <div className="w-9 h-9 flamingo-gradient rounded-xl flex items-center justify-center shadow-glow">
               <span className="text-white font-bold text-lg">N</span>
-            </div>
-            <span className="font-display text-xl font-bold text-mine-shaft">NovaBank</span>
+            </div> */}
+            <span className="font-display text-xl font-bold text-flamingo">NovaBank</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8">
@@ -94,7 +94,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto">
           <div className="max-w-3xl animate-fade-in">
             <div className="inline-flex items-center gap-2 bg-rose-bud/10 border border-rose-bud/50 rounded-full px-4 py-1.5 mb-6">
-              <Star size={14} className="text-flamingo fill-orange-500" />
+              <IndianRupee size={14} className="text-flamingo fill-orange-500" />
               <span className="text-spicy-mix text-sm font-medium">India's Modern Banking Platform</span>
             </div>
 
@@ -134,27 +134,27 @@ export default function LandingPage() {
 
           {/* Floating balance card */}
           <div className="mt-16 lg:mt-0 lg:absolute lg:right-8 lg:top-8 animate-slide-in-right">
-            <div className="w-80 flamingo-gradient rounded-2xl p-6 shadow-glow-lg text-white">
+            <div className="w-80 bg-white rounded-2xl p-6 shadow-glow-lg text-dusty-gray border border-flamingo/50">
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <p className="text-rose-bud text-xs font-medium uppercase tracking-wider">Total Balance</p>
+                  <p className="text-flamingo/70 text-xs font-medium uppercase tracking-wider">Total Balance</p>
                   <p className="text-3xl font-bold mt-1">₹{countBalance.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold">N</span>
+                  <span className="text-dusty-gray font-bold">N</span>
                 </div>
               </div>
               <div className="bg-white/10 rounded-xl p-3 mb-4">
-                <p className="text-rose-bud text-xs mb-1">Account Number</p>
+                <p className="text-flamingo text-xs mb-1">Account Number</p>
                 <p className="font-mono font-semibold tracking-wider">NOVA •••• 8372</p>
               </div>
               <div className="flex justify-between text-sm">
                 <div>
-                  <p className="text-rose-bud text-xs">Card Holder</p>
+                  <p className="text-flamingo text-xs">Card Holder</p>
                   <p className="font-medium mt-0.5">Raj Sharma</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-rose-bud text-xs">Member Since</p>
+                  <p className="text-flamingo text-xs">Member Since</p>
                   <p className="font-medium mt-0.5">Jan 2024</p>
                 </div>
               </div>

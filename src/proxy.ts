@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth'
 const protectedRoutes = ['/dashboard', '/passbook']
 const authRoutes = ['/auth/signin', '/auth/signup', '/auth/forgot-password']
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
   const token = req.cookies.get('auth_token')?.value
 
